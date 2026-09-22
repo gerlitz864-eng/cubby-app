@@ -1,0 +1,24 @@
+# Cubby with a real PostgreSQL. Copy .env.example to .env, set JWT_SECRET and PIN_PEPPER, then: docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: cubby
+      POSTGRES_DB: cubby
+    volumes: [dbdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U postgres"], interval: 5s, timeout: 3s, retries: 10 }
+  app:
+    build: .
+    depends_on: { db: { condition: service_healthy } }
+    ports: ["4000:4000"]
+    environment:
+      DATABASE_URL: postgres://postgres:cubby@db:5432/cubby
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      PIN_PEPPER: ${PIN_PEPPER:?set PIN_PEPPER in .env}
+      DB_TIMEZONE: ${DB_TIMEZONE:-America/New_York}
+      NOTIFY_PROVIDER: ${NOTIFY_PROVIDER:-console}
+      FACE_PROVIDER: ${FACE_PROVIDER:-mock}
+      SEED_DEMO: ${SEED_DEMO:-true}
+      UPLOAD_DIR: /data/uploads
+    volumes: [uploads:/data/uploads]
+volumes: { dbdata: {}, uploads: {} }

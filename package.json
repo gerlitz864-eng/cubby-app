@@ -1,0 +1,15 @@
+{
+  "name": "cubby",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cubby: daycare management platform (server + web)",
+  "workspaces": ["server", "web"],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w server\" \"npm run dev -w web\"",
+    "build": "npm run build -w web",
+    "start": "npm run start -w server",
+    "test": "npm test -w server",
+    "seed": "npm run seed -w server"
+  },
+  "devDependencies": { "concurrently": "^9.0.0" }
+}
