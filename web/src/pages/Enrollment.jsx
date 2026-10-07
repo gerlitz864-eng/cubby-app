@@ -140,7 +140,7 @@ export default function Enrollment() {
         </div>
       )}
       {tab === 'current' && (
-        <Panel flush><Table rows={(enr.data || []).filter((e) => e.status !== 'withdrawn')} empty="No enrollments." cols={[{ h: 'Child', render: (e) => `${e.first_name} ${e.last_name}` }, { h: 'Status', render: (e) => <StatusPill value={e.status} /> }, { h: 'Started', render: (e) => fmtDate(e.start_date) }, { h: 'Last day', render: (e) => fmtDate(e.scheduled_end_date || e.end_date) }, ...(manage ? [{ h: '', render: (e) => e.status !== 'scheduled' && <Btn small kind="ghost" onClick={() => setChange(e)}>Leave, notice, or withdraw</Btn> }] : [])]} /></Panel>
+        <Panel flush><Table rows={(enr.data || []).filter((e) => e.status !== 'withdrawn')} empty="No enrollments." cols={[{ h: 'Child', render: (e) => `${e.first_name} ${e.last_name}` }, { h: 'Room', render: (e) => e.classroom || '—' }, { h: 'Parent', render: (e) => e.guardian_first_name ? `${e.guardian_first_name} ${e.guardian_last_name}` : '—' }, { h: 'Phone', render: (e) => e.guardian_phone || '—' }, { h: 'Email', render: (e) => e.guardian_email || '—' }, { h: 'Status', render: (e) => <StatusPill value={e.status} /> }, { h: 'Started', render: (e) => fmtDate(e.start_date) }, { h: 'Last day', render: (e) => fmtDate(e.scheduled_end_date || e.end_date) }, ...(manage ? [{ h: '', render: (e) => e.status !== 'scheduled' && <Btn small kind="ghost" onClick={() => setChange(e)}>Leave, notice, or withdraw</Btn> }] : [])]} /></Panel>
       )}
       {tab === 'ageups' && (
         <>
