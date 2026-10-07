@@ -112,8 +112,18 @@ export default function register(r, ctx) {
   })));
 
   r.get('/enrollment/enrollments', need('enrollment.view'), h(async (req) => asUser(req.user, (q) => q(
-    `SELECT e.id, e.child_id, ch.first_name, ch.last_name, e.status, e.start_date, e.scheduled_end_date, e.end_date, e.notice_given_on, e.planned_return_on
-       FROM enrollments e JOIN children ch ON ch.id = e.child_id WHERE e.status <> 'cancelled' ORDER BY e.status, ch.last_name`))));
+    `SELECT e.id, e.child_id, ch.first_name, ch.last_name, e.status, e.start_date, e.scheduled_end_date, e.end_date, e.notice_given_on, e.planned_return_on,
+            cl.name AS classroom,
+            g.first_name AS guardian_first_name, g.last_name AS guardian_last_name, g.phone_mobile AS guardian_phone, g.email AS guardian_email
+       FROM enrollments e
+       JOIN children ch ON ch.id = e.child_id
+       LEFT JOIN classrooms cl ON cl.id = (SELECT classroom_id FROM child_classroom_assignments cca WHERE cca.child_id = ch.id ORDER BY lower(cca.valid_during) DESC LIMIT 1)
+       LEFT JOIN LATERAL (
+         SELECT g.first_name, g.last_name, g.phone_mobile, g.email
+           FROM child_guardians cg JOIN guardians g ON g.id = cg.guardian_id
+          WHERE cg.child_id = ch.id ORDER BY cg.is_primary DESC NULLS LAST LIMIT 1
+       ) g ON true
+       WHERE e.status <> 'cancelled' ORDER BY e.status, ch.last_name`))));
 
   // Leave, notice, and withdrawal.
   r.post('/enrollment/enrollments/:id/status', need('enrollment.manage'), h(async (req) => {
